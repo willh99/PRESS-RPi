@@ -4,7 +4,7 @@ import queue
 import json
 from pySON import read_json
 
-server_addr = ('127.0.0.1', 5555)
+server_addr = ('10.199.41.199', 5555)
 
 # Reference JSON to be used to compare to value
 # read from 'status.json'
@@ -32,15 +32,18 @@ def GET():
 
 
 def sendFile(filename, conn):
-    f = open(filename, 'rb')
-    line = f.read(1024)
-
-    print("Beginning File Transfer:", filename)
-    while line:
-        conn.send(line)
+    try:
+        f = open(filename, 'rb')
         line = f.read(1024)
-    f.close()
-    print("Transfer Complete")
+
+        print("Beginning File Transfer:", filename)
+        while line:
+            conn.send(line)
+            line = f.read(1024)
+        f.close()
+        print("Transfer Complete")
+    except FileNotFoundError:
+        print("ERROR: File \'", filename, "\' not found")
 
 
 def getFile(filename, conn):
@@ -78,8 +81,9 @@ while inputs:
             # A "readable" server socket is ready to accept a connection
             connection, client_address = s.accept()
             print('new connection from', client_address)
-            connection.setblocking(0)
+            #connection.setblocking(0)
             inputs.append(connection)
+            
 
             # Give the connection a queue for data we want to send
             message_queue[connection] = queue.Queue()
@@ -96,7 +100,19 @@ while inputs:
                 print("\nConnection Reset Error: Client Likely Terminated")
 
             if data:
-                print('received "%s" from %s' % (data, s.getpeername()))
+                try:
+                    print('received "%s" from %s' % (data, s.getpeername()))
+                except OSError:
+                    print("\nOSError: Transport endpoint not connected. Likely termination")
+                    if s in outputs:
+                        outputs.remove(s)
+                    if s in inputs:
+                        inputs.remove(s)
+                    s.close()
+                    del message_queue[s]
+                    continue
+                    
+                        
                 if data == "QUIT":
                     # Close connection if command given is QUIT
                     print('closing', client_address, 'after reading Quit')

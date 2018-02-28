@@ -3,6 +3,7 @@ import shutil
 import csv
 import pySON
 import datetime
+import time
 
 
 # Dynamically retrieve .csv file from NYISO with price data
@@ -33,8 +34,8 @@ def refinedata(region):
 def processdata():
     highest = 0
     lowest = 1000
-    buy = False
-    sell = False
+    buy = True
+    sell = True
 
     try:
         with open('Relevant_data.csv', 'r') as file:
@@ -42,7 +43,7 @@ def processdata():
             for row in data:
                 if float(row[3]) > highest:
                     highest = float(row[3])
-                if float(row[3]) < lowest:
+                elif float(row[3]) < lowest:
                     lowest = float(row[3])
 
             highest = 0.7*highest
@@ -61,15 +62,20 @@ def processdata():
                 # Sell if price hits 70th percentile of price
                 # Buy if price hits below 30th percentile
                 if float(row[3]) > highest and buy:
+                    print
                     buy = False
                     sell = True
-                    pySON.create_status(buy, sell)
+                    pySON.create_status(buy, sell, True)
                 elif float(row[3]) < lowest and sell:
                     buy = True
                     sell = False
-                    pySON.create_status(buy, sell)
+                    pySON.create_status(buy, sell, True)
     except FileNotFoundError:
         print("File \'Relevant_data.csv\' not found")
+
+
+def timepassed(oldtime, secpassed):
+    return time.time() - oldtime >= secpassed
 
 
 if __name__ == "__main__":
@@ -77,3 +83,6 @@ if __name__ == "__main__":
     #refinedata("N.Y.C.")
     #pySON.create_status(True, False)
     processdata()
+    t = time.time()
+    time.sleep(3)
+    print(timepassed(t))

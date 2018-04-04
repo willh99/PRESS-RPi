@@ -17,10 +17,10 @@ def read_json(filename):
         return -1
 
 
-def append_json(data):
-    with open('v_log.json', 'w') as f:
+def append_json(data, filename):
+    with open(filename, 'w') as f:
         json.dump(data, f, indent=2)
-        print("wrote to file")
+        # print("wrote to file")
 
 
 def create_status(buy, sell, isprice):

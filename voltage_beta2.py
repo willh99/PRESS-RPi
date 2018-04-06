@@ -192,7 +192,7 @@ while True:
         # Add a new dictionary(json) to a list for battery voltage
         dictionary = {"Timestamp": time.asctime(time.localtime()),
                       "Voltage": volt[0]}
-        if len(vlog_list) >= 1000:
+        if len(vlog_list) >= 5000:
             vlog_list.pop(0)
         vlog_list.append(dictionary)
         pySON.append_json(vlog_list, 'v_log.json')
@@ -200,7 +200,7 @@ while True:
         # Add a new dictionary(json) to a list for temperature
         dictionary = {"Timestamp": time.asctime(time.localtime()),
                       "temperature": temp[0]}
-        if len(tlog_list) >= 1000:
+        if len(tlog_list) >= 5000:
             tlog_list.pop(0)
         tlog_list.append(dictionary)
         pySON.append_json(tlog_list, 't_log.json')
@@ -208,7 +208,7 @@ while True:
         # Add a new dictionary(json) to a list for inverter temperature
         dictionary = {"Timestamp": time.asctime(time.localtime()),
                       "batt_temperature": btemp[0]}
-        if len(btlog_list) >= 1000:
+        if len(btlog_list) >= 5000:
             btlog_list.pop(0)
         btlog_list.append(dictionary)
         pySON.append_json(btlog_list, 'bt_log.json')
@@ -275,4 +275,4 @@ while True:
             temp[i] = temp[i - 1]
             btemp[i] = btemp[i - 1]
 
-        time.sleep(.5)
+        time.sleep(1)
